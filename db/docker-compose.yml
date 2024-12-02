@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    build:
+      context: ./postgres/
+      # dockerfile: Dockerfile  # Dockerfile for postgres service
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=TRINITY101
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=trinityapp
+    volumes:
+      - postgresvolume:/var/lib/postgresql/data
+    networks:
+      - postgresdb-network
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "hostie@gmail.com"
+  #     PGADMIN_DEFAULT_PASSWORD: "hostie@admin"
+  #   ports:
+  #     - "82:80"
+  #   networks:
+  #     - postgresdb-network
+  #   volumes:
+  #     - pgadmin-data:/var/lib/pgadmin
+networks:
+  postgresdb-network:
+    driver: bridge
+
+volumes:
+  postgresvolume:
+  # pgadmin-data:
