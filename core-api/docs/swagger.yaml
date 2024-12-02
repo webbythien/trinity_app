@@ -1,0 +1,97 @@
+definitions:
+  model.Response:
+    properties:
+      data:
+        type: object
+      error_code:
+        type: string
+      msg:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: http://34.81.244.146:5005
+info:
+  contact: {}
+  description: Fiber go web framework based REST API boilerplate
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Fiber Go API
+  version: "1.0"
+paths:
+  /region/districts/{provinceCode}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all districts for a given province code
+      parameters:
+      - description: Province Code
+        in: path
+        name: provinceCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Get all districts by province code
+      tags:
+      - regions
+  /region/provinces:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all provinces from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Get all provinces
+      tags:
+      - regions
+  /region/wards/{districtCode}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all wards for a given district code
+      parameters:
+      - description: District Code
+        in: path
+        name: districtCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Get all wards by district code
+      tags:
+      - regions
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

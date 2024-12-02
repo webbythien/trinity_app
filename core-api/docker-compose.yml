@@ -1,0 +1,12 @@
+version: "3.5"
+
+services:
+  api:
+    container_name: fibergb-api
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes: # needed for CompileDaemon to detect file changes
+      - ./:/app
+    ports:
+      - 5005:5005
