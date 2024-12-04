@@ -1,13 +1,20 @@
 package dto
 
 import (
-	"github.com/hrshadhin/fiber-go-boilerplate/app/model"
 	"time"
+
+	"github.com/hrshadhin/fiber-go-boilerplate/app/model"
 )
 
 // ###########################
 // ## Data Transfer Objects ##
 // ###########################
+type Response struct {
+	Data      interface{} `json:"data"`
+	Msg       string      `json:"msg"`
+	Success   bool        `json:"success"`
+	ErrorCode *string     `json:"error_code"`
+}
 
 type User struct {
 	ID        int        `json:"id"`

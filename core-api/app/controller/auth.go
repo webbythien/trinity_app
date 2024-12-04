@@ -1,94 +1,67 @@
 package controller
 
 import (
-	"fmt"
-	"time"
-
-	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hrshadhin/fiber-go-boilerplate/app/model"
 	repo "github.com/hrshadhin/fiber-go-boilerplate/app/repository"
-	"github.com/hrshadhin/fiber-go-boilerplate/pkg/config"
 	"github.com/hrshadhin/fiber-go-boilerplate/platform/database"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func GetNewAccessToken(c *fiber.Ctx) error {
-	login := &model.Auth{}
-	if err := c.BodyParser(login); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"msg": err.Error(),
-		})
-	}
-	userRepo := repo.NewUserRepo(database.GetDB())
-	user, err := userRepo.GetByUsername(login.Username)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"msg": "username not found",
-		})
+// Register godoc
+// @Summary Register a new user
+// @Description Create a new user account with the provided details
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param  data  body  model.RegisterInput  true  "User Registration Data"
+// @Success 200 {object} model.AuthResponse "Registration successful"
+// @Failure 400 {object} model.Response "Bad Request"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /auth/register [post]
+func Register(c *fiber.Ctx) error {
+	var req *model.RegisterInput
+
+	// Parse the request body and handle errors
+	if err := parseRequestBody(c, &req); err != nil {
+		return err
 	}
 
-	isValid := IsValidPassword([]byte(user.Password), []byte(login.Password))
-	if !isValid {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"msg": "password is wrong",
-		})
+	// Validate the common fields (step and optional id)
+	if err := validate.Struct(req); err != nil {
+		return returnBadRequestWithErrorCode(c, err.Error(), "BAD_REQUEST")
 	}
+	authRepo := repo.NewAuthRepo(database.GetDB())
 
-	if !user.IsActive {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"msg": "user not active anymore.",
-		})
-	}
+	result, err := authRepo.Register(req)
 
-	// Generate a new Access token.
-	token, err := GenerateNewAccessToken(user.ID, user.IsAdmin)
-	if err != nil {
-		// Return status 500 and token generation error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"msg": err.Error(),
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"msg":          fmt.Sprintf("Token will be expired within %d minutes", config.AppCfg().JWTSecretExpireMinutesCount),
-		"access_token": token,
-	})
+	return handleResultWithErrorCode(c, result, err, "", "Register successfully")
 }
 
-func GenerateNewAccessToken(userID int, isAdmin bool) (string, error) {
-	// Create token
-	token := jwt.New(jwt.SigningMethodHS256)
+// Login godoc
+// @Summary Login user
+// @Description Authenticate a user with email and password
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param  data  body  model.LoginInput  true  "User Login Data"
+// @Success 200 {object} model.AuthResponse "Login successful"
+// @Failure 400 {object} model.Response "Bad Request"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /auth/login [post]
+func Login(c *fiber.Ctx) error {
+	var req *model.LoginInput
 
-	// Set claims
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = userID
-	claims["admin"] = isAdmin
-	claims["exp"] = time.Now().Add(time.Minute * time.Duration(config.AppCfg().JWTSecretExpireMinutesCount)).Unix()
-
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte(config.AppCfg().JWTSecretKey))
-	if err != nil {
-		return "", err
+	// Parse the request body and handle errors
+	if err := parseRequestBody(c, &req); err != nil {
+		return err
 	}
-
-	return t, nil
-}
-
-func GeneratePasswordHash(password []byte) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
+	// Validate the common fields (step and optional id)
+	if err := validate.Struct(req); err != nil {
+		return returnBadRequestWithErrorCode(c, err.Error(), "BAD_REQUEST")
 	}
+	authRepo := repo.NewAuthRepo(database.GetDB())
 
-	return string(hashedPassword), nil
-}
+	result, err := authRepo.Login(req)
 
-func IsValidPassword(hash, password []byte) bool {
-	err := bcrypt.CompareHashAndPassword(hash, password)
-	if err != nil {
-		return false
-	}
-
-	return true
+	return handleResultWithErrorCode(c, result, err, "", "Login successfully")
 }

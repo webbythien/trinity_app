@@ -1,4 +1,310 @@
 definitions:
+  model.AuthOutput:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      role_id:
+        type: integer
+      status:
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  model.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/model.AuthOutput'
+    type: object
+  model.CampaignEntity:
+    properties:
+      entity_id:
+        type: integer
+      entity_name:
+        type: string
+      entity_price:
+        type: number
+      entity_type:
+        type: string
+    type: object
+  model.CampaignInfo:
+    properties:
+      discount_type:
+        type: string
+      discount_value:
+        type: number
+      end_date:
+        type: string
+      id:
+        type: integer
+      max_discount_amount:
+        type: number
+      name:
+        type: string
+      price_package_discount:
+        type: number
+    type: object
+  model.CampaignPlatformLimitOutput:
+    properties:
+      campaign_id:
+        type: integer
+      created_at:
+        type: string
+      hashed:
+        type: string
+      id:
+        type: integer
+      platform_id:
+        type: integer
+      platform_name:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+      used_count:
+        type: integer
+      voucher_limit:
+        type: integer
+    type: object
+  model.CampaignResponse:
+    properties:
+      description:
+        type: string
+      discount_type:
+        type: string
+      discount_value:
+        type: number
+      end_date:
+        type: string
+      entities:
+        items:
+          $ref: '#/definitions/model.CampaignEntity'
+        type: array
+      id:
+        type: integer
+      max_discount_amount:
+        type: number
+      max_vouchers:
+        type: integer
+      name:
+        type: string
+      remaining_vouchers:
+        type: integer
+      start_date:
+        type: string
+      user_type:
+        type: string
+    type: object
+  model.CampaignUserType:
+    properties:
+      description:
+        type: string
+      value:
+        type: string
+    type: object
+  model.CreateCampaignRequest:
+    properties:
+      description:
+        example: Huge discounts for Black Friday!
+        type: string
+      discount_type:
+        example: percentage
+        type: string
+      discount_value:
+        example: 15.5
+        type: number
+      end_date:
+        example: "2024-12-10T23:59:59Z"
+        type: string
+      entities:
+        items:
+          $ref: '#/definitions/model.Entity'
+        type: array
+      id:
+        example: 1
+        type: integer
+      max_discount_amount:
+        example: 100
+        type: number
+      max_vouchers:
+        example: 1000
+        type: integer
+      name:
+        example: Black Friday
+        type: string
+      platform_limits:
+        items:
+          $ref: '#/definitions/model.PlatformCampaginRequest'
+        type: array
+      start_date:
+        example: "2024-12-01T00:00:00Z"
+        type: string
+      user_type:
+        example: external
+        type: string
+    required:
+    - discount_type
+    - discount_value
+    - end_date
+    - entities
+    - max_vouchers
+    - name
+    - platform_limits
+    - start_date
+    - user_type
+    type: object
+  model.CreateGuestVoucher:
+    properties:
+      campaign_hash:
+        type: string
+    required:
+    - campaign_hash
+    type: object
+  model.Entity:
+    properties:
+      entity_id:
+        example: 123
+        type: integer
+      entity_type:
+        example: product
+        type: string
+    type: object
+  model.EntityType:
+    properties:
+      id:
+        type: integer
+      status:
+        type: boolean
+      table_name:
+        type: string
+      type_name:
+        type: string
+    type: object
+  model.GuestVoucherResponse:
+    properties:
+      code:
+        type: string
+      discount_amount:
+        type: number
+      discount_type:
+        type: string
+      valid_from:
+        type: string
+      valid_until:
+        type: string
+    type: object
+  model.LoginInput:
+    properties:
+      email:
+        example: admin@admin.com
+        type: string
+      password:
+        example: admin
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.PackageWithCampaignOutput:
+    properties:
+      campaigns:
+        items:
+          $ref: '#/definitions/model.CampaignInfo'
+        type: array
+      description:
+        type: string
+      duration_months:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      package_type:
+        type: string
+      price:
+        type: number
+      status:
+        type: boolean
+      user_vouchers:
+        items:
+          $ref: '#/definitions/model.VoucherInfo'
+        type: array
+    type: object
+  model.PaginatedCampaignResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.CampaignResponse'
+        type: array
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  model.PaymentCallback:
+    properties:
+      amount:
+        type: number
+      status:
+        description: PaymentID      string  `json:"payment_id" validate:"required"`
+        type: string
+      subscription_id:
+        type: integer
+    required:
+    - amount
+    - status
+    - subscription_id
+    type: object
+  model.Platform:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  model.PlatformCampaginRequest:
+    properties:
+      platform_id:
+        example: 1
+        type: integer
+      voucher_limit:
+        example: 100
+        type: integer
+    type: object
+  model.RegisterInput:
+    properties:
+      email:
+        example: johndoe@example.com
+        type: string
+      full_name:
+        example: Nguyen Van A
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
   model.Response:
     properties:
       data:
@@ -10,7 +316,82 @@ definitions:
       success:
         type: boolean
     type: object
-host: http://34.81.244.146:5005
+  model.SubscriptionRequest:
+    properties:
+      campaign_hash:
+        type: string
+      package_id:
+        type: integer
+    required:
+    - campaign_hash
+    - package_id
+    type: object
+  model.SubscriptionResponse:
+    properties:
+      discount_amount:
+        type: number
+      end_date:
+        type: string
+      final_price:
+        type: number
+      original_price:
+        type: number
+      package_name:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      subscription_id:
+        type: integer
+      voucher_code:
+        type: string
+    type: object
+  model.Voucher:
+    properties:
+      campaign_id:
+        type: integer
+      code:
+        type: string
+      created_at:
+        type: string
+      discount_amount:
+        type: number
+      discount_type:
+        type: string
+      id:
+        type: integer
+      max_discount_amount:
+        type: number
+      status:
+        type: string
+      tracking_id:
+        type: integer
+      updated_at:
+        type: string
+      used_at:
+        type: string
+      user_id:
+        type: integer
+      valid_from:
+        type: string
+      valid_until:
+        type: string
+    type: object
+  model.VoucherInfo:
+    properties:
+      code:
+        type: string
+      discount_amount:
+        type: number
+      discount_type:
+        type: string
+      id:
+        type: integer
+      valid_until:
+        type: string
+    type: object
+host: localhost:5005
 info:
   contact: {}
   description: Fiber go web framework based REST API boilerplate
@@ -20,16 +401,387 @@ info:
   title: Fiber Go API
   version: "1.0"
 paths:
-  /region/districts/{provinceCode}:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with email and password
+      parameters:
+      - description: User Login Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with the provided details
+      parameters:
+      - description: User Registration Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Registration successful
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Register a new user
+      tags:
+      - auth
+  /campaigns:
+    post:
+      consumes:
+      - application/json
+      description: Create a new promotional campaign with entities and platform limits
+      parameters:
+      - description: Campaign details
+        in: body
+        name: campaign
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCampaignRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Campaign created successfully
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "422":
+          description: Validation Error
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a new or update promotional campaign
+      tags:
+      - campaigns
+  /campaigns/{campaign_id}/platform-limits:
     get:
       consumes:
       - application/json
-      description: Retrieve all districts for a given province code
+      description: Get all platform limits for a specific campaign
       parameters:
-      - description: Province Code
+      - description: Campaign ID
         in: path
-        name: provinceCode
+        name: campaign_id
         required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CampaignPlatformLimitOutput'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get campaign platform limits
+      tags:
+      - campaigns
+  /campaigns/active:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of active promotional campaigns with optional filters
+      parameters:
+      - description: Discount Type
+        enum:
+        - percentage
+        - fixed
+        in: query
+        name: discount_type
+        type: string
+      - description: User Type
+        enum:
+        - new
+        - existing
+        in: query
+        name: user_type
+        type: string
+      - description: Minimum Discount Value
+        in: query
+        name: min_discount
+        type: number
+      - description: Maximum Discount Value
+        in: query
+        name: max_discount
+        type: number
+      - description: Entity Type
+        enum:
+        - package
+        - tour
+        - merchandise
+        in: query
+        name: entity_type
+        type: string
+      - description: Sort Field
+        enum:
+        - start_date
+        - end_date
+        - discount_value
+        in: query
+        name: sort
+        type: string
+      - description: Sort Direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_direction
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of records per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: active campaigns
+          schema:
+            $ref: '#/definitions/model.PaginatedCampaignResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Retrieve active campaigns
+      tags:
+      - campaigns
+  /campaigns/entity-type:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all active entity types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.EntityType'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all entity types
+      tags:
+      - entities
+  /campaigns/user-types:
+    get:
+      description: Get all available campaign user types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign user types
+          schema:
+            items:
+              $ref: '#/definitions/model.CampaignUserType'
+            type: array
+      summary: Get campaign user types
+      tags:
+      - campaigns
+  /packages:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all active packages with their associated campaigns and user vouchers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PackageWithCampaignOutput'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Get all packages with active campaigns
+      tags:
+      - packages
+  /platforms:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all platforms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Platform'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all platforms
+      tags:
+      - platforms
+  /subscriptions:
+    post:
+      consumes:
+      - application/json
+      description: Create a subscription with campaign tracking and voucher
+      parameters:
+      - description: Subscription details
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/model.SubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Subscription created
+          schema:
+            $ref: '#/definitions/model.SubscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "422":
+          description: Validation Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - Bearer: []
+      summary: Create a new subscription for existing user
+      tags:
+      - subscriptions
+  /subscriptions/payment-callback:
+    post:
+      consumes:
+      - application/json
+      description: Update subscription and voucher status based on payment result
+      parameters:
+      - description: Payment callback details
+        in: body
+        name: callback
+        required: true
+        schema:
+          $ref: '#/definitions/model.PaymentCallback'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment processed successfully
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "422":
+          description: Validation Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Handle payment callback
+      tags:
+      - subscriptions
+  /vouchers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all vouchers with optional filters
+      parameters:
+      - description: Filter by voucher status (active/used/expired)
+        in: query
+        name: status
         type: string
       produces:
       - application/json
@@ -37,43 +789,61 @@ paths:
         "200":
           description: OK
           schema:
+            items:
+              $ref: '#/definitions/model.Voucher'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
             $ref: '#/definitions/model.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.Response'
-      summary: Get all districts by province code
+      security:
+      - Bearer: []
+      summary: Get all vouchers
       tags:
-      - regions
-  /region/provinces:
-    get:
+      - vouchers
+  /vouchers/guest:
+    post:
       consumes:
       - application/json
-      description: Retrieve all provinces from the database
+      description: Allows non-registered users to claim a voucher based on their IP and User-Agent information.
+      parameters:
+      - description: Request body to create a guest voucher
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateGuestVoucher'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Voucher created successfully
+          schema:
+            $ref: '#/definitions/model.GuestVoucherResponse'
+        "400":
+          description: Invalid request or validation error
           schema:
             $ref: '#/definitions/model.Response'
-        "500":
-          description: Internal Server Error
+        "429":
+          description: IP address has already claimed a voucher
           schema:
             $ref: '#/definitions/model.Response'
-      summary: Get all provinces
+      summary: Create a voucher for guest users
       tags:
-      - regions
-  /region/wards/{districtCode}:
+      - Vouchers
+  /vouchers/users:
     get:
       consumes:
       - application/json
-      description: Retrieve all wards for a given district code
+      description: Retrieve all vouchers for a specific user
       parameters:
-      - description: District Code
-        in: path
-        name: districtCode
-        required: true
+      - description: Filter by voucher status (active/used/expired)
+        in: query
+        name: status
         type: string
       produces:
       - application/json
@@ -81,16 +851,28 @@ paths:
         "200":
           description: OK
           schema:
+            items:
+              $ref: '#/definitions/model.Voucher'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: User not found
+          schema:
             $ref: '#/definitions/model.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.Response'
-      summary: Get all wards by district code
+      security:
+      - Bearer: []
+      summary: Get user's vouchers
       tags:
-      - regions
+      - vouchers
 securityDefinitions:
-  ApiKeyAuth:
+  Bearer:
     in: header
     name: Authorization
     type: apiKey

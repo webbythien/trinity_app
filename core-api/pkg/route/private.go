@@ -9,13 +9,8 @@ import (
 // PrivateRoutes func for describe group of private route.
 func PrivateRoutes(a *fiber.App) {
 	// Admin route group
-	adminRoute := a.Group("/api/v1/users", middleware.JWTProtected(), middleware.IsAdmin)
+	// adminRoute := a.Group("/api/v1/users", middleware.JWTProtected(), middleware.IsAdmin)
 	// User
-	adminRoute.Post("/", controller.CreateUser)
-	adminRoute.Get("/", controller.GetUsers)
-	adminRoute.Get("/:id", controller.GetUser)
-	adminRoute.Put("/:id", controller.UpdateUser)
-	adminRoute.Delete("/:id", controller.DeleteUser)
 
 	// Book
 	route := a.Group("/api/v1/books", middleware.JWTProtected())

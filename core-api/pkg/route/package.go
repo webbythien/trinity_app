@@ -3,14 +3,12 @@ package route
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/hrshadhin/fiber-go-boilerplate/app/controller"
+	"github.com/hrshadhin/fiber-go-boilerplate/pkg/middleware"
 )
 
 // PublicRoutes func for describe group of public route.
-func PublicRoutes(a *fiber.App) {
+func PackageRoutes(a *fiber.App) {
 	// Create route group.
-	route := a.Group("/api/v1")
-
-	route.Get("/books", controller.GetBooks)
-	route.Get("/books/:id", controller.GetBook)
-
+	route := a.Group("/packages")
+	route.Get("", middleware.JWTOptional(), controller.GetPackages)
 }

@@ -2,10 +2,10 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+
 	"github.com/hrshadhin/fiber-go-boilerplate/app/model"
+	"github.com/hrshadhin/fiber-go-boilerplate/pkg/constants"
 	"github.com/hrshadhin/fiber-go-boilerplate/platform/database"
-	"time"
 )
 
 type UserRepo struct {
@@ -16,81 +16,55 @@ func NewUserRepo(db *database.DB) UserRepository {
 	return &UserRepo{db}
 }
 
-func (repo *UserRepo) Create(u *model.CreateUser) error {
-	query := `INSERT INTO "user" (is_active, is_admin, username, email, password, first_name, last_name) VALUES($1, $2, $3, $4, $5, $6, $7)`
-	_, err := repo.db.Exec(query, u.IsActive, u.IsAdmin, u.UserName, u.Email, u.Password, u.FirstName, u.LastName)
-	return err
-}
+func (r *UserRepo) GetUserInfo(userID int) (*model.UserSubscriptionInfo, error) {
+	query := `
+        WITH active_subscription AS (
+            SELECT 
+                s.*, 
+                p.name as package_name,
+                p.package_type
+            FROM subscriptions s
+            JOIN packages p ON s.package_id = p.id
+            WHERE s.user_id = $1 
+            AND s.status = 'active'
+            AND s.end_date > CURRENT_TIMESTAMP
+            ORDER BY s.end_date DESC
+            LIMIT 1
+        )
+        SELECT 
+            u.id, u.email, u.full_name, u.status, u.role_id,
+            u.created_at, u.updated_at,
+            CASE WHEN as2.id IS NOT NULL THEN true ELSE false END as is_subscribed,
+            as2.package_id, as2.package_name, as2.package_type,
+            as2.start_date, as2.end_date,
+            as2.original_price, as2.discount_amount, as2.final_price,
+            as2.status as subscription_status
+        FROM users u
+        LEFT JOIN active_subscription as2 ON true
+        WHERE u.id = $1`
 
-func (repo *UserRepo) All(limit int, offset uint) ([]*model.User, error) {
-	var users []*model.User
-	query := `SELECT * FROM "user" WHERE is_deleted=FALSE`
-	var err error
+	var user model.UserSubscriptionInfo
+	var sub model.SubscriptionInfo
 
-	if limit > 0 && offset >= 0 {
-		query = fmt.Sprintf("%s LIMIT $1 OFFSET $2", query)
-		err = repo.db.Select(&users, query, limit, offset)
-	} else {
-		err = repo.db.Select(&users, query)
-	}
+	err := r.db.QueryRow(query, userID).Scan(
+		&user.ID, &user.Email, &user.FullName, &user.Status, &user.RoleID,
+		&user.CreatedAt, &user.UpdatedAt, &user.IsSubscribed,
+		&sub.PackageID, &sub.PackageName, &sub.PackageType,
+		&sub.StartDate, &sub.EndDate,
+		&sub.OriginalPrice, &sub.DiscountAmount, &sub.FinalPrice,
+		&sub.Status,
+	)
 
-	return users, err
-}
-
-func (repo *UserRepo) GetByUsername(username string) (*model.User, error) {
-	user := model.User{}
-	query := `SELECT * FROM "user" WHERE username = $1 AND is_deleted = FALSE`
-	err := repo.db.Get(&user, query, username)
-
-	return &user, err
-}
-
-func (repo *UserRepo) Get(ID int) (*model.User, error) {
-	user := model.User{}
-	query := `SELECT * FROM "user" WHERE id = $1 AND is_deleted = FALSE`
-	err := repo.db.Get(&user, query, ID)
-
-	return &user, err
-}
-
-func (repo *UserRepo) Exists(username, email string) (bool, error) {
-	findByUser := len(username)
-	findByEmail := len(email)
-	if findByUser <= 0 || findByEmail <= 0 {
-		return false, nil
-	}
-	var placeHolderValues []interface{}
-	query := `SELECT 1 FROM "user"`
-	if findByUser > 0 && findByEmail > 0 {
-		query = fmt.Sprintf("%s WHERE username = $1 OR email = $2", query)
-		placeHolderValues = append(placeHolderValues, username, email)
-	} else {
-		if findByUser > 0 {
-			query = fmt.Sprintf("%s WHERE username = $1", query)
-			placeHolderValues = append(placeHolderValues, username)
-		} else {
-			query = fmt.Sprintf("%s WHERE email = $1", query)
-			placeHolderValues = append(placeHolderValues, email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, constants.ErrUserNotFound
 		}
+		return nil, err
 	}
 
-	var exists bool
-	query = fmt.Sprintf("SELECT exists (%s)", query)
-	err := repo.db.QueryRow(query, placeHolderValues...).Scan(&exists)
-	if err != nil && err != sql.ErrNoRows {
-		return false, err
+	if user.IsSubscribed {
+		user.Subscription = &sub
 	}
-	return exists, nil
-}
 
-func (repo *UserRepo) Update(ID int, u *model.UpdateUser) error {
-	query := `UPDATE "user" SET updated_at = $2, is_active = $3, is_admin = $4, first_name = $5, last_name = $6 WHERE id = $1`
-	_, err := repo.db.Exec(query, ID, time.Now(), u.IsActive, u.IsAdmin, u.FirstName, u.LastName)
-	return err
-}
-
-func (repo *UserRepo) Delete(ID int) error {
-	query := `UPDATE "user" SET is_deleted = TRUE,updated_at = $2 WHERE id = $1`
-	_, err := repo.db.Exec(query, ID, time.Now())
-	return err
+	return &user, nil
 }

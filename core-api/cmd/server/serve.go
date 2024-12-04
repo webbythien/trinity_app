@@ -36,7 +36,12 @@ func Serve() {
 	// Routes.
 	route.GeneralRoute(app)
 	route.SwaggerRoute(app)
-	route.RegionRoutes(app)
+	route.AuthRoutes(app)
+	route.CampaignRoutes(app)
+	route.PackageRoutes(app)
+	route.PlatformRoutes(app)
+	route.VoucherRoutes(app)
+	route.SubscriptionRoutes(app)
 	// route.PublicRoutes(app)
 	// route.PrivateRoutes(app)
 	route.NotFoundRoute(app)

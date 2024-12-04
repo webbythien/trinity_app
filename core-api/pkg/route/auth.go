@@ -6,11 +6,11 @@ import (
 )
 
 // PublicRoutes func for describe group of public route.
-func PublicRoutes(a *fiber.App) {
+func AuthRoutes(a *fiber.App) {
 	// Create route group.
-	route := a.Group("/api/v1")
+	route := a.Group("/auth")
 
-	route.Get("/books", controller.GetBooks)
-	route.Get("/books/:id", controller.GetBook)
+	route.Post("/register", controller.Register)
+	route.Post("/login", controller.Login)
 
 }

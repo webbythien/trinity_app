@@ -44,3 +44,28 @@ type UpdateUser struct {
 	FirstName string `json:"first_name" validate:"required,lte=100"`
 	LastName  string `json:"last_name" validate:"required,lte=100"`
 }
+
+type UserSubscriptionInfo struct {
+	ID        int       `json:"id"`
+	Email     string    `json:"email"`
+	FullName  string    `json:"full_name"`
+	Status    bool      `json:"status"`
+	RoleID    int       `json:"role_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	IsSubscribed bool              `json:"is_subscribed"`
+	Subscription *SubscriptionInfo `json:"subscription,omitempty"`
+}
+
+type SubscriptionInfo struct {
+	PackageID      int       `json:"package_id"`
+	PackageName    string    `json:"package_name"`
+	PackageType    string    `json:"package_type"`
+	StartDate      time.Time `json:"start_date"`
+	EndDate        time.Time `json:"end_date"`
+	OriginalPrice  float64   `json:"original_price"`
+	DiscountAmount float64   `json:"discount_amount"`
+	FinalPrice     float64   `json:"final_price"`
+	Status         string    `json:"status"`
+}

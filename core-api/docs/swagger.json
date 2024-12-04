@@ -10,11 +10,11 @@
         },
         "version": "1.0"
     },
-    "host": "http://34.81.244.146:5005",
+    "host": "localhost:5005",
     "paths": {
-        "/region/districts/{provinceCode}": {
-            "get": {
-                "description": "Retrieve all districts for a given province code",
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate a user with email and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -22,21 +22,29 @@
                     "application/json"
                 ],
                 "tags": [
-                    "regions"
+                    "auth"
                 ],
-                "summary": "Get all districts by province code",
+                "summary": "Login user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Province Code",
-                        "name": "provinceCode",
-                        "in": "path",
-                        "required": true
+                        "description": "User Login Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginInput"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Login successful",
+                        "schema": {
+                            "$ref": "#/definitions/model.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/model.Response"
                         }
@@ -50,9 +58,9 @@
                 }
             }
         },
-        "/region/provinces": {
-            "get": {
-                "description": "Retrieve all provinces from the database",
+        "/auth/register": {
+            "post": {
+                "description": "Create a new user account with the provided details",
                 "consumes": [
                     "application/json"
                 ],
@@ -60,12 +68,29 @@
                     "application/json"
                 ],
                 "tags": [
-                    "regions"
+                    "auth"
                 ],
-                "summary": "Get all provinces",
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User Registration Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegisterInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Registration successful",
+                        "schema": {
+                            "$ref": "#/definitions/model.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/model.Response"
                         }
@@ -79,9 +104,14 @@
                 }
             }
         },
-        "/region/wards/{districtCode}": {
-            "get": {
-                "description": "Retrieve all wards for a given district code",
+        "/campaigns": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new promotional campaign with entities and platform limits",
                 "consumes": [
                     "application/json"
                 ],
@@ -89,14 +119,258 @@
                     "application/json"
                 ],
                 "tags": [
-                    "regions"
+                    "campaigns"
                 ],
-                "summary": "Get all wards by district code",
+                "summary": "Create a new or update promotional campaign",
                 "parameters": [
                     {
+                        "description": "Campaign details",
+                        "name": "campaign",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateCampaignRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Campaign created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/campaigns/active": {
+            "get": {
+                "description": "Get a list of active promotional campaigns with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Retrieve active campaigns",
+                "parameters": [
+                    {
+                        "enum": [
+                            "percentage",
+                            "fixed"
+                        ],
                         "type": "string",
-                        "description": "District Code",
-                        "name": "districtCode",
+                        "description": "Discount Type",
+                        "name": "discount_type",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "new",
+                            "existing"
+                        ],
+                        "type": "string",
+                        "description": "User Type",
+                        "name": "user_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum Discount Value",
+                        "name": "min_discount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum Discount Value",
+                        "name": "max_discount",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "package",
+                            "tour",
+                            "merchandise"
+                        ],
+                        "type": "string",
+                        "description": "Entity Type",
+                        "name": "entity_type",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "start_date",
+                            "end_date",
+                            "discount_value"
+                        ],
+                        "type": "string",
+                        "description": "Sort Field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort Direction",
+                        "name": "sort_direction",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of records per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "active campaigns",
+                        "schema": {
+                            "$ref": "#/definitions/model.PaginatedCampaignResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/campaigns/entity-type": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of all active entity types",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "entities"
+                ],
+                "summary": "Get all entity types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.EntityType"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/campaigns/user-types": {
+            "get": {
+                "description": "Get all available campaign user types",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Get campaign user types",
+                "responses": {
+                    "200": {
+                        "description": "Campaign user types",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CampaignUserType"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/campaigns/{campaign_id}/platform-limits": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all platform limits for a specific campaign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Get campaign platform limits",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Campaign ID",
+                        "name": "campaign_id",
                         "in": "path",
                         "required": true
                     }
@@ -104,6 +378,353 @@
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CampaignPlatformLimitOutput"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/packages": {
+            "get": {
+                "description": "Get a list of all active packages with their associated campaigns and user vouchers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "packages"
+                ],
+                "summary": "Get all packages with active campaigns",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PackageWithCampaignOutput"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/platforms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of all platforms",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "platforms"
+                ],
+                "summary": "Get all platforms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Platform"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a subscription with campaign tracking and voucher",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Create a new subscription for existing user",
+                "parameters": [
+                    {
+                        "description": "Subscription details",
+                        "name": "subscription",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Subscription created",
+                        "schema": {
+                            "$ref": "#/definitions/model.SubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/payment-callback": {
+            "post": {
+                "description": "Update subscription and voucher status based on payment result",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Handle payment callback",
+                "parameters": [
+                    {
+                        "description": "Payment callback details",
+                        "name": "callback",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PaymentCallback"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment processed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/vouchers": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieve a list of all vouchers with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vouchers"
+                ],
+                "summary": "Get all vouchers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by voucher status (active/used/expired)",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Voucher"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/vouchers/guest": {
+            "post": {
+                "description": "Allows non-registered users to claim a voucher based on their IP and User-Agent information.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vouchers"
+                ],
+                "summary": "Create a voucher for guest users",
+                "parameters": [
+                    {
+                        "description": "Request body to create a guest voucher",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateGuestVoucher"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voucher created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/model.GuestVoucherResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or validation error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "429": {
+                        "description": "IP address has already claimed a voucher",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/vouchers/users": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieve all vouchers for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vouchers"
+                ],
+                "summary": "Get user's vouchers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by voucher status (active/used/expired)",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Voucher"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/model.Response"
                         }
@@ -119,6 +740,458 @@
         }
     },
     "definitions": {
+        "model.AuthOutput": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.AuthOutput"
+                }
+            }
+        },
+        "model.CampaignEntity": {
+            "type": "object",
+            "properties": {
+                "entity_id": {
+                    "type": "integer"
+                },
+                "entity_name": {
+                    "type": "string"
+                },
+                "entity_price": {
+                    "type": "number"
+                },
+                "entity_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CampaignInfo": {
+            "type": "object",
+            "properties": {
+                "discount_type": {
+                    "type": "string"
+                },
+                "discount_value": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_discount_amount": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price_package_discount": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.CampaignPlatformLimitOutput": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "hashed": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "platform_id": {
+                    "type": "integer"
+                },
+                "platform_name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "used_count": {
+                    "type": "integer"
+                },
+                "voucher_limit": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CampaignResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount_type": {
+                    "type": "string"
+                },
+                "discount_value": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "entities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CampaignEntity"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_discount_amount": {
+                    "type": "number"
+                },
+                "max_vouchers": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remaining_vouchers": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "user_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CampaignUserType": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CreateCampaignRequest": {
+            "type": "object",
+            "required": [
+                "discount_type",
+                "discount_value",
+                "end_date",
+                "entities",
+                "max_vouchers",
+                "name",
+                "platform_limits",
+                "start_date",
+                "user_type"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Huge discounts for Black Friday!"
+                },
+                "discount_type": {
+                    "type": "string",
+                    "example": "percentage"
+                },
+                "discount_value": {
+                    "type": "number",
+                    "example": 15.5
+                },
+                "end_date": {
+                    "type": "string",
+                    "example": "2024-12-10T23:59:59Z"
+                },
+                "entities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Entity"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "max_discount_amount": {
+                    "type": "number",
+                    "example": 100
+                },
+                "max_vouchers": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Black Friday"
+                },
+                "platform_limits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.PlatformCampaginRequest"
+                    }
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "2024-12-01T00:00:00Z"
+                },
+                "user_type": {
+                    "type": "string",
+                    "example": "external"
+                }
+            }
+        },
+        "model.CreateGuestVoucher": {
+            "type": "object",
+            "required": [
+                "campaign_hash"
+            ],
+            "properties": {
+                "campaign_hash": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Entity": {
+            "type": "object",
+            "properties": {
+                "entity_id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "entity_type": {
+                    "type": "string",
+                    "example": "product"
+                }
+            }
+        },
+        "model.EntityType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "table_name": {
+                    "type": "string"
+                },
+                "type_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GuestVoucherResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "discount_type": {
+                    "type": "string"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LoginInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "admin@admin.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "admin"
+                }
+            }
+        },
+        "model.PackageWithCampaignOutput": {
+            "type": "object",
+            "properties": {
+                "campaigns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CampaignInfo"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration_months": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "package_type": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "user_vouchers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.VoucherInfo"
+                    }
+                }
+            }
+        },
+        "model.PaginatedCampaignResponse": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CampaignResponse"
+                    }
+                },
+                "per_page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.PaymentCallback": {
+            "type": "object",
+            "required": [
+                "amount",
+                "status",
+                "subscription_id"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "status": {
+                    "description": "PaymentID      string  `json:\"payment_id\" validate:\"required\"`",
+                    "type": "string"
+                },
+                "subscription_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.Platform": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PlatformCampaginRequest": {
+            "type": "object",
+            "properties": {
+                "platform_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "voucher_limit": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "model.RegisterInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "full_name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@example.com"
+                },
+                "full_name": {
+                    "type": "string",
+                    "example": "Nguyen Van A"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
         "model.Response": {
             "type": "object",
             "properties": {
@@ -135,10 +1208,124 @@
                     "type": "boolean"
                 }
             }
+        },
+        "model.SubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "campaign_hash",
+                "package_id"
+            ],
+            "properties": {
+                "campaign_hash": {
+                    "type": "string"
+                },
+                "package_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.SubscriptionResponse": {
+            "type": "object",
+            "properties": {
+                "discount_amount": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "final_price": {
+                    "type": "number"
+                },
+                "original_price": {
+                    "type": "number"
+                },
+                "package_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "subscription_id": {
+                    "type": "integer"
+                },
+                "voucher_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Voucher": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "integer"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "discount_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_discount_amount": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tracking_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "used_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.VoucherInfo": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "discount_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "valid_until": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

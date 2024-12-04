@@ -3,13 +3,16 @@ package controller
 import (
 	"strconv"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
+	"github.com/hrshadhin/fiber-go-boilerplate/app/model"
 	"github.com/hrshadhin/fiber-go-boilerplate/app/task"
 	"github.com/hrshadhin/fiber-go-boilerplate/pkg/workers"
 	"github.com/hrshadhin/fiber-go-boilerplate/platform/logger"
 )
 
 var logr = logger.GetLogger()
+var validate = validator.New()
 
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
@@ -48,4 +51,31 @@ func GetPagination(c *fiber.Ctx) (pageNo, pageSize int) {
 	}
 
 	return pageNo, pageSize
+}
+
+func returnBadRequestWithErrorCode(c *fiber.Ctx, message string, errorCode string) error {
+	return c.Status(fiber.StatusBadRequest).JSON(model.Response{
+		Data:      nil,
+		Msg:       message,
+		Success:   false,
+		ErrorCode: &errorCode,
+	})
+}
+func handleResultWithErrorCode(c *fiber.Ctx, result interface{}, err error, errorCode string, successMessage string) error {
+	if err != nil {
+		return returnBadRequestWithErrorCode(c, err.Error(), errorCode)
+	}
+	return c.JSON(model.Response{
+		Data:      result,
+		Msg:       successMessage,
+		Success:   true,
+		ErrorCode: nil,
+	})
+}
+
+func parseRequestBody(c *fiber.Ctx, body interface{}) error {
+	if err := c.BodyParser(body); err != nil {
+		return returnBadRequestWithErrorCode(c, "Invalid request format", "BAD_REQUEST")
+	}
+	return nil
 }

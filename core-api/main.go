@@ -19,8 +19,8 @@ var (
 
 func init() {
 	client = cli.NewApp()
-	client.Name = "Hostie Core API"
-	client.Usage = "Hostie core api worker and handler"
+	client.Name = "Trinity Core API"
+	client.Usage = "Trinity core api worker and handler"
 	client.Version = "0.0.1"
 }
 
@@ -30,10 +30,10 @@ func init() {
 // @termsOfService
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
-// @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey Bearer
 // @in header
 // @name Authorization
-// @host http://34.81.244.146:5005
+// @host localhost:5005
 func main() {
 	// setup various configuration for app
 	config.LoadAllConfigs(".env")
