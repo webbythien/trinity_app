@@ -14,10 +14,6 @@ import (
 // @Accept json
 // @Produce json
 // @Param discount_type query string false "Discount Type" Enums(percentage, fixed)
-// @Param user_type query string false "User Type" Enums(new, existing)
-// @Param min_discount query number false "Minimum Discount Value"
-// @Param max_discount query number false "Maximum Discount Value"
-// @Param entity_type query string false "Entity Type" Enums(package, tour, merchandise)
 // @Param sort query string false "Sort Field" Enums(start_date, end_date, discount_value)
 // @Param sort_direction query string false "Sort Direction" Enums(asc, desc)
 // @Param page query integer false "Page number" default(1)

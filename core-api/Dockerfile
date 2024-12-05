@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine AS builder
+FROM golang:1.20-alpine AS builder
 
 # run the process as an unprivileged user.
 RUN mkdir /user && \

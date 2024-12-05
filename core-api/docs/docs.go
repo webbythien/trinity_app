@@ -209,39 +209,6 @@ var doc = `{
                     },
                     {
                         "enum": [
-                            "new",
-                            "existing"
-                        ],
-                        "type": "string",
-                        "description": "User Type",
-                        "name": "user_type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Minimum Discount Value",
-                        "name": "min_discount",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Maximum Discount Value",
-                        "name": "max_discount",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "package",
-                            "tour",
-                            "merchandise"
-                        ],
-                        "type": "string",
-                        "description": "Entity Type",
-                        "name": "entity_type",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
                             "start_date",
                             "end_date",
                             "discount_value"

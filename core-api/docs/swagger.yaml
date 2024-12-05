@@ -551,29 +551,6 @@ paths:
         in: query
         name: discount_type
         type: string
-      - description: User Type
-        enum:
-        - new
-        - existing
-        in: query
-        name: user_type
-        type: string
-      - description: Minimum Discount Value
-        in: query
-        name: min_discount
-        type: number
-      - description: Maximum Discount Value
-        in: query
-        name: max_discount
-        type: number
-      - description: Entity Type
-        enum:
-        - package
-        - tour
-        - merchandise
-        in: query
-        name: entity_type
-        type: string
       - description: Sort Field
         enum:
         - start_date

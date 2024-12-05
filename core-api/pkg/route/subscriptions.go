@@ -11,6 +11,6 @@ func SubscriptionRoutes(a *fiber.App) {
 	// Create route group.
 	route := a.Group("/subscriptions")
 	route.Post("", middleware.JWTOptional(), controller.CreateSubscription)
-	route.Post("/register", controller.CreateUserWithSubscription)
+	route.Post("/register", middleware.JWTOptional(), controller.CreateUserWithSubscription)
 	route.Post("/payment-callback", controller.HandlePaymentCallback)
 }

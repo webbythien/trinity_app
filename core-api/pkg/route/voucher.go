@@ -10,7 +10,7 @@ import (
 func VoucherRoutes(a *fiber.App) {
 	// Create route group.
 	route := a.Group("/vouchers")
-	route.Get("", middleware.JWTProtected(), middleware.IsAdmin, controller.GetAllVouchers)
+	route.Get("", controller.GetAllVouchers)
 	route.Get("/users", middleware.JWTProtected(), controller.GetUserVouchers)
 	route.Post("/guest", controller.CreateGuestVoucher)
 }

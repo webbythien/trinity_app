@@ -80,8 +80,8 @@ type CreateCampaignRequest struct {
 
 // Entity represents an entity associated with a campaign
 type Entity struct {
-	EntityType string `json:"entity_type" example:"product"`
-	EntityID   int    `json:"entity_id" example:"123"`
+	EntityType string `json:"entity_type" example:"package"`
+	EntityID   int    `json:"entity_id" example:"2"`
 }
 
 // PlatformCampaignRequest represents platform-specific campaign limits
